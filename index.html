@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 조각 찾기 프로젝트: 성찰 글쓰기</title>
+    <title>나의 조각 찾기 프로젝트: 최종 성찰 보고서</title>
     
     <!-- 스타일 꾸미기 도구 (Tailwind CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -387,7 +387,7 @@
                                             <div className="flex flex-col items-center justify-center gap-2">
                                                 <span className="text-3xl">📸</span>
                                                 <span className="text-indigo-700 font-bold">나의 조각 사진 올리기</span>
-                                                <span className="text-xs text-indigo-400">선택 사항 (없어도 돼요!)</span>
+                                                <span className="text-xs text-indigo-400"></span>
                                             </div>
                                             <input 
                                                 type="file" 
@@ -436,7 +436,7 @@
                                 onChange={handleChange}
                                 onNext={handleNext}
                                 onBack={handleBack}
-                                placeholder="예: 꼼꼼하게 무언가를 만드는 것을 좋아한다, 친구의 이야기를 잘 들어주는 따뜻한 마음을 가졌다"
+                                placeholder="예: 꼼꼼하게 무언가를 만드는 것을 좋아한다. 친구의 이야기를 잘 들어주는 따뜻한 마음을 가졌다"
                                 step={step}
                                 isError={shakeInput}
                             >
@@ -644,13 +644,13 @@
                                     </div>
 
                                     <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', textAlign: 'center', color: '#1f2937', marginBottom: '15px', paddingBottom: '10px', borderBottom: '4px double #e5e7eb'}}>
-                                        나의 조각을 찾아서
+                                        나의 소중한 조각을 찾아서
                                     </h1>
 
-                                    {/* 업로드된 이미지 표시 영역 (크기 축소) */}
+                                    {/* 업로드된 이미지 표시 영역 (크기 축소 및 가운데 정렬 수정) */}
                                     {image && (
                                         <div style={{marginBottom: '20px', textAlign: 'center'}}>
-                                            <img src={image} alt="나의 조각" style={{maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', border: '4px solid white'}} />
+                                            <img src={image} alt="나의 조각" style={{display: 'block', margin: '0 auto', maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', border: '4px solid white'}} />
                                             <p style={{fontSize: '0.75rem', color: '#9ca3af', marginTop: '4px'}}>▲ 나의 소중한 조각</p>
                                         </div>
                                     )}
@@ -661,7 +661,7 @@
                                                 <span style={{backgroundColor: '#dbeafe', padding: '2px 8px', borderRadius: '0.25rem', fontSize: '0.8rem'}}>Chapter 1</span> 나를 깨닫다
                                             </h3>
                                             <p style={{backgroundColor: 'rgba(239, 246, 255, 0.5)', padding: '10px', borderRadius: '0.5rem', borderLeft: '4px solid #bfdbfe'}}>
-                                                저는 이번 프로젝트를 통해 저의 조각을 만들었습니다. 제 조각은 <strong style={{color: formData.selectedColor || '#ef4444', backgroundColor: 'white', padding: '1px 6px', borderRadius: '4px', border: '1px solid #e5e7eb'}}>{formData.selectedColorName || '___'}</strong>이며, 조각을 만들며 저는 제가 <span style={{fontWeight: 'bold', color: '#1d4ed8', backgroundColor: '#dbeafe', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.selfDiscovery || '___'}</span>라는 것을 새롭게 알게 되었습니다.
+                                                저는 이번 프로젝트를 통해 저의 조각을 만들었습니다. 제 조각은 <strong style={{color: formData.selectedColor || '#ef4444', backgroundColor: 'white', padding: '1px 6px', borderRadius: '4px', border: '1px solid #e5e7eb'}}>{formData.selectedColorName || '___'}</strong>이며, 조각을 만들며 저는 제가 <span style={{fontWeight: 'bold', color: '#1d4ed8', backgroundColor: '#dbeafe', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.selfDiscovery || '___'}</span>이라는 것을 새롭게 알게 되었습니다.
                                             </p>
                                         </section>
 
@@ -670,7 +670,7 @@
                                                 <span style={{backgroundColor: '#fce7f3', padding: '2px 8px', borderRadius: '0.25rem', fontSize: '0.8rem'}}>Chapter 2</span> 함께하는 기쁨
                                             </h3>
                                             <p style={{backgroundColor: 'rgba(253, 242, 248, 0.5)', padding: '10px', borderRadius: '0.5rem', borderLeft: '4px solid #fbcfe8'}}>
-                                                친구들의 조각에 긍정적인 댓글을 달아주었을 때, 제 마음은 <span style={{fontWeight: 'bold', color: '#be185d', backgroundColor: '#fce7f3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.feeling || '___'}</span>했습니다. 그리고 이런 행동들이 모여 우리 반은 <span style={{fontWeight: 'bold', color: '#be185d', backgroundColor: '#fce7f3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.classChange || '___'}</span>게 변할 수 있습니다.
+                                                친구들의 조각에 긍정적인 댓글을 달아주었을 때, 제 마음은 <span style={{fontWeight: 'bold', color: '#be185d', backgroundColor: '#fce7f3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.feeling || '___'}</span>. 그리고 이런 행동들이 모여 우리 반은 <span style={{fontWeight: 'bold', color: '#be185d', backgroundColor: '#fce7f3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.classChange || '___'}</span>게 변할 수 있습니다.
                                             </p>
                                         </section>
 
@@ -697,7 +697,7 @@
                                                 <span style={{backgroundColor: '#fef9c3', padding: '2px 8px', borderRadius: '0.25rem', fontSize: '0.8rem'}}>Chapter 5</span> 나의 다짐
                                             </h3>
                                             <p style={{backgroundColor: 'rgba(254, 252, 232, 0.5)', padding: '10px', borderRadius: '0.5rem', borderLeft: '4px solid #fde047'}}>
-                                                이 활동을 통해 저는 '나의 작은 조각도 큰 힘을 가지고 있다'는 것을 배웠습니다. 앞으로 저는 제가 발견한 긍정의 힘을 <span style={{fontWeight: 'bold', color: '#a16207', backgroundColor: '#fef9c3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.resolution || '___'}</span>하겠습니다.
+                                                이 활동을 통해 저는 '나의 작은 조각도 큰 힘을 가지고 있다'는 것을 배웠습니다. 앞으로 저는 제가 발견한 긍정의 힘을 <span style={{fontWeight: 'bold', color: '#a16207', backgroundColor: '#fef9c3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.resolution || '___'}</span>.
                                             </p>
                                         </section>
                                     </div>
