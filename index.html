@@ -8,17 +8,20 @@
     <!-- 스타일 꾸미기 도구 (Tailwind CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 1. 리액트 도구 (React) - 안정적인 버전으로 변경 -->
+    <!-- 1. 리액트 도구 (React) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.min.js" crossorigin></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.min.js" crossorigin></script>
     
-    <!-- 2. 필수 의존성 (Prop-types) - 그래프 오류 방지용 추가 -->
+    <!-- 2. 필수 의존성 (Prop-types) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js" crossorigin></script>
     
-    <!-- 3. 그래프 도구 (Recharts) - 안정적인 버전으로 변경 -->
+    <!-- 3. 그래프 도구 (Recharts) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.10.3/Recharts.min.js" crossorigin></script>
     
-    <!-- 4. 코드 번역기 (Babel) -->
+    <!-- 4. 화면 캡처 도구 (html2canvas) - 추가됨 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- 5. 코드 번역기 (Babel) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
 
     <style>
@@ -47,7 +50,6 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
-        // Recharts 객체가 잘 로드되었는지 확인 후 분해 할당
         const { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend } = window.Recharts || {};
 
         // 색상 데이터 (12가지)
@@ -177,7 +179,7 @@
 
         // 그래프 컴포넌트
         const GrowthChart = ({ beforeData, afterData, showLegend = true, height = 300 }) => {
-            if (!RadarChart) return <div className="text-red-500">그래프 로딩 실패</div>; // Recharts 로드 실패 시 대비
+            if (!RadarChart) return <div className="text-red-500">그래프 로딩 실패</div>; 
 
             const data = [
                 { subject: '자아존중감', A: beforeData.selfEsteem, B: afterData.selfEsteem, fullMark: 5 },
@@ -229,6 +231,7 @@
             const [image, setImage] = useState(null);
             const [copied, setCopied] = useState(false);
             const [shakeInput, setShakeInput] = useState(false);
+            const [isCapturing, setIsCapturing] = useState(false); // 캡처 진행 중 상태
             
             const reportRef = useRef(null);
 
@@ -239,12 +242,12 @@
             const validateStep = (currentStep) => {
                 switch(currentStep) {
                     case 0: return formData.grade && formData.classNum && formData.name;
-                    case 1: return true; // 그래프 단계는 입력값 검증 없음 (기본값 있음)
-                    case 2: return formData.selfDiscovery.trim().length > 0 && formData.selectedColorName !== ''; 
-                    case 3: return formData.feeling.trim().length > 0 && formData.classChange.trim().length > 0;
-                    case 4: return formData.role.trim().length > 0;
-                    case 5: return formData.shout.trim().length > 0 && formData.worldChange.trim().length > 0;
-                    case 6: return formData.resolution.trim().length > 0;
+                    case 1: return formData.selfDiscovery.trim().length > 0 && formData.selectedColorName !== ''; 
+                    case 2: return formData.feeling.trim().length > 0 && formData.classChange.trim().length > 0;
+                    case 3: return formData.role.trim().length > 0;
+                    case 4: return formData.shout.trim().length > 0 && formData.worldChange.trim().length > 0;
+                    case 5: return formData.resolution.trim().length > 0;
+                    case 6: return true; // 그래프는 기본값이 있으므로 검증 패스
                     default: return true;
                 }
             };
@@ -315,60 +318,44 @@
                 setStep(7); // 결과 화면으로 이동
             };
 
-            const handleCopy = async () => {
+            // 이미지 캡처 및 복사 기능
+            const handleCaptureCopy = async () => {
                 if (!reportRef.current) return;
+                setIsCapturing(true); // 버튼 비활성화 등 상태 변경
 
                 try {
-                    // 그래프 SVG를 이미지로 변환 (복사를 위해)
-                    const svgElement = reportRef.current.querySelector('.recharts-surface');
-                    if (svgElement) {
-                        // SVG 스타일 인라인화 (간단한 처리)
-                        svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-                    }
+                    // html2canvas로 캡처
+                    const canvas = await html2canvas(reportRef.current, {
+                        scale: 2, // 고해상도
+                        useCORS: true, // 이미지 크로스오리진 허용
+                        backgroundColor: "#ffffff" // 배경 흰색 고정
+                    });
 
-                    const content = reportRef.current.innerHTML;
-                    
-                    const fullHtml = `
-                        <!DOCTYPE html>
-                        <html>
-                        <body style="font-family: sans-serif; background-color: white;">
-                            ${content}
-                        </body>
-                        </html>
-                    `;
-                    
-                    const blobHtml = new Blob([fullHtml], { type: 'text/html' });
-                    const blobText = new Blob([reportRef.current.innerText], { type: 'text/plain' });
-                    
-                    if (typeof ClipboardItem !== "undefined") {
-                        const data = [new ClipboardItem({
-                            ["text/html"]: blobHtml,
-                            ["text/plain"]: blobText
-                        })];
-                        await navigator.clipboard.write(data);
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 2000);
-                        return;
-                    }
-                    throw new Error("ClipboardItem not supported");
+                    // 캔버스를 Blob(이미지 데이터)으로 변환
+                    canvas.toBlob(async (blob) => {
+                        if (!blob) {
+                            alert("이미지 변환 실패");
+                            setIsCapturing(false);
+                            return;
+                        }
+
+                        try {
+                            // 클립보드에 이미지 쓰기
+                            const data = [new ClipboardItem({ [blob.type]: blob })];
+                            await navigator.clipboard.write(data);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                        } catch (err) {
+                            console.error("클립보드 복사 실패:", err);
+                            alert("이미지 복사에 실패했습니다. 브라우저 권한을 확인해주세요.");
+                        }
+                        setIsCapturing(false);
+                    });
 
                 } catch (err) {
-                    console.log("Fallback to execCommand", err);
-                    const selection = window.getSelection();
-                    const range = document.createRange();
-                    selection.removeAllRanges();
-                    range.selectNodeContents(reportRef.current);
-                    selection.addRange(range);
-                    
-                    const successful = document.execCommand('copy');
-                    selection.removeAllRanges();
-                    
-                    if(successful) {
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 2000);
-                    } else {
-                        alert('복사에 실패했습니다. 마우스로 내용을 드래그해서 복사(Ctrl+C)해주세요.');
-                    }
+                    console.error("캡처 실패:", err);
+                    alert("캡처 중 오류가 발생했습니다.");
+                    setIsCapturing(false);
                 }
             };
 
@@ -439,6 +426,7 @@
                                         </div>
                                     </div>
 
+                                    {/* 이미지 업로드 섹션 (첫 페이지로 이동) */}
                                     <div className="p-4 bg-indigo-50 rounded-xl border-2 border-dashed border-indigo-200 text-center">
                                         <label className="block cursor-pointer hover:bg-indigo-100 transition-colors rounded-lg p-2">
                                             <div className="flex flex-col items-center justify-center gap-2">
@@ -480,57 +468,7 @@
                             </div>
                         );
 
-                    case 1: // 성장 그래프 단계 (새로 추가됨)
-                        return (
-                            <QuestionStep
-                                icon="📊"
-                                color="indigo"
-                                title="나의 성장 그래프 만들기"
-                                description="아래 슬라이더를 움직여 활동 전과 후의 변화를 체크해보세요."
-                                step={step}
-                            >
-                                <div className="mb-6 flex justify-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                                    <GrowthChart beforeData={graphData.before} afterData={graphData.after} />
-                                </div>
-
-                                <div className="space-y-6">
-                                    {['selfEsteem:자아존중감', 'intimacy:친밀감', 'belonging:소속감', 'empathy:공감 능력', 'expression:표현력'].map((item) => {
-                                        const [key, label] = item.split(':');
-                                        return (
-                                            <div key={key} className="bg-gray-50 p-4 rounded-xl">
-                                                <div className="flex justify-between mb-2">
-                                                    <span className="font-bold text-gray-700">{label}</span>
-                                                </div>
-                                                <div className="flex flex-col gap-3">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="text-xs font-bold text-yellow-500 w-12">활동 전</span>
-                                                        <input 
-                                                            type="range" min="1" max="5" 
-                                                            value={graphData.before[key]} 
-                                                            onChange={(e) => handleGraphChange('before', key, e.target.value)}
-                                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-yellow-400"
-                                                        />
-                                                        <span className="text-sm font-bold w-4 text-center">{graphData.before[key]}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="text-xs font-bold text-green-500 w-12">활동 후</span>
-                                                        <input 
-                                                            type="range" min="1" max="5" 
-                                                            value={graphData.after[key]} 
-                                                            onChange={(e) => handleGraphChange('after', key, e.target.value)}
-                                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500"
-                                                        />
-                                                        <span className="text-sm font-bold w-4 text-center">{graphData.after[key]}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </QuestionStep>
-                        );
-
-                    case 2:
+                    case 1:
                         return (
                             <QuestionStep
                                 icon="📖"
@@ -572,7 +510,7 @@
                             </QuestionStep>
                         );
 
-                    case 3:
+                    case 2:
                         return (
                             <div className="flex flex-col h-full max-w-3xl mx-auto w-full p-4 animate-fade-in pb-10">
                                 <div className="flex items-center gap-3 mb-6">
@@ -619,7 +557,7 @@
                             </div>
                         );
 
-                    case 4:
+                    case 3:
                         return (
                             <QuestionStep
                                 icon="👨‍👩‍👧‍👦"
@@ -638,7 +576,7 @@
                             />
                         );
 
-                    case 5:
+                    case 4:
                         return (
                             <div className="flex flex-col h-full max-w-3xl mx-auto w-full p-4 animate-fade-in pb-10">
                                 <div className="flex items-center gap-3 mb-6">
@@ -685,7 +623,7 @@
                             </div>
                         );
 
-                    case 6:
+                    case 5:
                         return (
                             <QuestionStep
                                 icon="⭐"
@@ -705,7 +643,60 @@
                             />
                         );
 
-                    case 7:
+                    case 6: // 성장 그래프 단계 (6단계로 이동)
+                        return (
+                            <QuestionStep
+                                icon="📊"
+                                color="indigo"
+                                title="나의 성장 그래프 만들기"
+                                description="아래 슬라이더를 움직여 활동 전과 후의 변화를 체크해보세요."
+                                step={step}
+                                onNext={handleNext}
+                                onBack={handleBack}
+                                isLast={true}
+                            >
+                                <div className="mb-6 flex justify-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                                    <GrowthChart beforeData={graphData.before} afterData={graphData.after} />
+                                </div>
+
+                                <div className="space-y-6">
+                                    {['selfEsteem:자아존중감', 'intimacy:친밀감', 'belonging:소속감', 'empathy:공감 능력', 'expression:표현력'].map((item) => {
+                                        const [key, label] = item.split(':');
+                                        return (
+                                            <div key={key} className="bg-gray-50 p-4 rounded-xl">
+                                                <div className="flex justify-between mb-2">
+                                                    <span className="font-bold text-gray-700">{label}</span>
+                                                </div>
+                                                <div className="flex flex-col gap-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-xs font-bold text-yellow-500 w-12">활동 전</span>
+                                                        <input 
+                                                            type="range" min="1" max="5" 
+                                                            value={graphData.before[key]} 
+                                                            onChange={(e) => handleGraphChange('before', key, e.target.value)}
+                                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-yellow-400"
+                                                        />
+                                                        <span className="text-sm font-bold w-4 text-center">{graphData.before[key]}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-xs font-bold text-green-500 w-12">활동 후</span>
+                                                        <input 
+                                                            type="range" min="1" max="5" 
+                                                            value={graphData.after[key]} 
+                                                            onChange={(e) => handleGraphChange('after', key, e.target.value)}
+                                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500"
+                                                        />
+                                                        <span className="text-sm font-bold w-4 text-center">{graphData.after[key]}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </QuestionStep>
+                        );
+
+                    case 7: // 최종 보고서 화면 (7단계)
                         return (
                             <div className="flex flex-col h-full max-w-3xl mx-auto w-full p-4 animate-fade-in">
                                 <div className="flex items-center justify-between mb-4 print:hidden">
@@ -785,7 +776,7 @@
                                                 <span style={{backgroundColor: '#dbeafe', padding: '2px 8px', borderRadius: '0.25rem', fontSize: '0.8rem'}}>Chapter 1</span> 나를 깨닫다
                                             </h3>
                                             <p style={{backgroundColor: 'rgba(239, 246, 255, 0.5)', padding: '10px', borderRadius: '0.5rem', borderLeft: '4px solid #bfdbfe'}}>
-                                                저는 이번 프로젝트를 통해 저의 조각을 만들었습니다. 제 조각은 <strong style={{color: formData.selectedColor || '#ef4444', backgroundColor: 'white', padding: '1px 6px', borderRadius: '4px', border: '1px solid #e5e7eb'}}>{formData.selectedColorName || '___'}</strong>이며, 조각을 만들며 저는 제가 <span style={{fontWeight: 'bold', color: '#1d4ed8', backgroundColor: '#dbeafe', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.selfDiscovery || '___'}</span>이라는 것을 새롭게 알게 되었습니다.
+                                                저는 이번 프로젝트를 통해 저의 조각을 만들었습니다. 제 조각은 <strong style={{color: formData.selectedColor || '#ef4444', backgroundColor: 'white', padding: '1px 6px', borderRadius: '4px', border: '1px solid #e5e7eb'}}>{formData.selectedColorName || '___'}</strong>이며, 조각을 만들며 저는 제가 <span style={{fontWeight: 'bold', color: '#1d4ed8', backgroundColor: '#dbeafe', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.selfDiscovery || '___'}</span>라는 것을 새롭게 알게 되었습니다.
                                             </p>
                                         </section>
 
@@ -834,10 +825,11 @@
                                 <div className="mt-6 flex justify-center gap-4 print:hidden">
                                     <button 
                                         type="button"
-                                        onClick={handleCopy}
-                                        className={`flex items-center gap-2 px-8 py-4 rounded-full font-bold text-lg shadow-xl transition-all transform hover:-translate-y-1 active:scale-95 ${copied ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-black'}`}
+                                        onClick={handleCaptureCopy}
+                                        disabled={isCapturing}
+                                        className={`flex items-center gap-2 px-8 py-4 rounded-full font-bold text-lg shadow-xl transition-all transform hover:-translate-y-1 active:scale-95 ${copied ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-black'} ${isCapturing ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
-                                        {copied ? '✅ 복사 완료!' : '📋 이미지 포함 전체 복사하기'}
+                                        {isCapturing ? '📸 캡처 중...' : (copied ? '✅ 복사 완료!' : '📋 이미지로 전체 복사하기')}
                                     </button>
                                 </div>
                             </div>
