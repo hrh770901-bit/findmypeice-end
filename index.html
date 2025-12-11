@@ -3,17 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 조각 찾기 프로젝트: 최종 성찰 보고서</title>
+    <title>나의 조각 찾기 프로젝트: 성찰 글쓰기</title>
     
     <!-- 스타일 꾸미기 도구 (Tailwind CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 리액트 도구 (React) -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <!-- 1. 리액트 도구 (React) - 안정적인 버전으로 변경 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.min.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.min.js" crossorigin></script>
     
-    <!-- 코드 번역기 (Babel) -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- 2. 필수 의존성 (Prop-types) - 그래프 오류 방지용 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js" crossorigin></script>
+    
+    <!-- 3. 그래프 도구 (Recharts) - 안정적인 버전으로 변경 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.10.3/Recharts.min.js" crossorigin></script>
+    
+    <!-- 4. 코드 번역기 (Babel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
 
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
@@ -41,8 +47,10 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
+        // Recharts 객체가 잘 로드되었는지 확인 후 분해 할당
+        const { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend } = window.Recharts || {};
 
-        // 색상 데이터 (12가지) - 민트 삭제, 블랙 추가
+        // 색상 데이터 (12가지)
         const COLOR_PALETTE = [
             { name: "열정의 빨강", value: "#ef4444", text: "text-red-500", bg: "bg-red-50" },
             { name: "에너지 주황", value: "#f97316", text: "text-orange-500", bg: "bg-orange-50" },
@@ -98,34 +106,35 @@
                             {description}
                         </p>
 
-                        {/* 추가 컨텐츠 영역 (색상 선택 등) */}
                         {children}
 
-                        <div className="flex-1 flex flex-col mt-4">
-                            <label className="block text-gray-800 font-bold mb-4 text-xl leading-relaxed break-keep">
-                                {question.split('_______________').map((part, i, arr) => (
-                                    <React.Fragment key={i}>
-                                        {part}
-                                        {i < arr.length - 1 && (
-                                            <span className={`inline-block border-b-2 px-2 mx-1 min-w-[80px] text-center bg-gray-50 rounded-t`}>
-                                                (빈칸)
-                                            </span>
-                                        )}
-                                    </React.Fragment>
-                                ))}
-                            </label>
-                            
-                            <textarea
-                                name={name}
-                                value={value}
-                                onChange={onChange}
-                                placeholder={placeholder}
-                                className={`w-full p-6 border-2 rounded-2xl outline-none transition-all min-h-[300px] text-lg leading-loose shadow-inner resize-y ${displayColorClass.split(' ').slice(1).join(' ')} ${focusColorClass} ${isError && value.length === 0 ? 'border-red-500 ring-2 ring-red-200 animate-shake' : ''}`}
-                            ></textarea>
-                            <p className={`text-right text-sm mt-3 font-medium flex justify-end items-center gap-1 ${isError && value.length === 0 ? 'text-red-500 font-bold' : 'text-gray-400'}`}>
-                                {isError && value.length === 0 ? '⚠️ 내용을 입력해주세요!' : (value.length > 0 ? `✅ 작성중... (${value.length}자)` : '내용을 입력해주세요')}
-                            </p>
-                        </div>
+                        {question && (
+                            <div className="flex-1 flex flex-col mt-4">
+                                <label className="block text-gray-800 font-bold mb-4 text-xl leading-relaxed break-keep">
+                                    {question.split('_______________').map((part, i, arr) => (
+                                        <React.Fragment key={i}>
+                                            {part}
+                                            {i < arr.length - 1 && (
+                                                <span className={`inline-block border-b-2 px-2 mx-1 min-w-[80px] text-center bg-gray-50 rounded-t`}>
+                                                    (빈칸)
+                                                </span>
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                                </label>
+                                
+                                <textarea
+                                    name={name}
+                                    value={value}
+                                    onChange={onChange}
+                                    placeholder={placeholder}
+                                    className={`w-full p-6 border-2 rounded-2xl outline-none transition-all min-h-[300px] text-lg leading-loose shadow-inner resize-y ${displayColorClass.split(' ').slice(1).join(' ')} ${focusColorClass} ${isError && value.length === 0 ? 'border-red-500 ring-2 ring-red-200 animate-shake' : ''}`}
+                                ></textarea>
+                                <p className={`text-right text-sm mt-3 font-medium flex justify-end items-center gap-1 ${isError && value.length === 0 ? 'text-red-500 font-bold' : 'text-gray-400'}`}>
+                                    {isError && value.length === 0 ? '⚠️ 내용을 입력해주세요!' : (value.length > 0 ? `✅ 작성중... (${value.length}자)` : '내용을 입력해주세요')}
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     <NavigationButtons onBack={onBack} onNext={onNext} isLast={isLast} color={color} />
@@ -166,6 +175,34 @@
             );
         };
 
+        // 그래프 컴포넌트
+        const GrowthChart = ({ beforeData, afterData, showLegend = true, height = 300 }) => {
+            if (!RadarChart) return <div className="text-red-500">그래프 로딩 실패</div>; // Recharts 로드 실패 시 대비
+
+            const data = [
+                { subject: '자아존중감', A: beforeData.selfEsteem, B: afterData.selfEsteem, fullMark: 5 },
+                { subject: '친밀감', A: beforeData.intimacy, B: afterData.intimacy, fullMark: 5 },
+                { subject: '소속감', A: beforeData.belonging, B: afterData.belonging, fullMark: 5 },
+                { subject: '공감 능력', A: beforeData.empathy, B: afterData.empathy, fullMark: 5 },
+                { subject: '표현력', A: beforeData.expression, B: afterData.expression, fullMark: 5 },
+            ];
+
+            return (
+                <div style={{ width: '100%', height: height }}>
+                    <ResponsiveContainer>
+                        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+                            <PolarGrid />
+                            <PolarAngleAxis dataKey="subject" tick={{ fill: '#4b5563', fontSize: 12 }} />
+                            <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
+                            <Radar name="활동 전 (노랑)" dataKey="A" stroke="#fbbf24" fill="#fbbf24" fillOpacity={0.3} />
+                            <Radar name="활동 후 (초록)" dataKey="B" stroke="#22c55e" fill="#22c55e" fillOpacity={0.4} />
+                            {showLegend && <Legend />}
+                        </RadarChart>
+                    </ResponsiveContainer>
+                </div>
+            );
+        };
+
         function App() {
             const [step, setStep] = useState(0); 
             const [formData, setFormData] = useState({
@@ -182,6 +219,13 @@
                 worldChange: '',
                 resolution: ''
             });
+            
+            // 그래프 데이터 상태
+            const [graphData, setGraphData] = useState({
+                before: { selfEsteem: 3, intimacy: 3, belonging: 3, empathy: 3, expression: 3 },
+                after: { selfEsteem: 4, intimacy: 4, belonging: 4, empathy: 4, expression: 4 }
+            });
+
             const [image, setImage] = useState(null);
             const [copied, setCopied] = useState(false);
             const [shakeInput, setShakeInput] = useState(false);
@@ -192,15 +236,15 @@
                 window.scrollTo(0, 0);
             }, [step]);
 
-            // 입력값 검증 함수
             const validateStep = (currentStep) => {
                 switch(currentStep) {
                     case 0: return formData.grade && formData.classNum && formData.name;
-                    case 1: return formData.selfDiscovery.trim().length > 0 && formData.selectedColorName !== ''; 
-                    case 2: return formData.feeling.trim().length > 0 && formData.classChange.trim().length > 0;
-                    case 3: return formData.role.trim().length > 0;
-                    case 4: return formData.shout.trim().length > 0 && formData.worldChange.trim().length > 0;
-                    case 5: return formData.resolution.trim().length > 0;
+                    case 1: return true; // 그래프 단계는 입력값 검증 없음 (기본값 있음)
+                    case 2: return formData.selfDiscovery.trim().length > 0 && formData.selectedColorName !== ''; 
+                    case 3: return formData.feeling.trim().length > 0 && formData.classChange.trim().length > 0;
+                    case 4: return formData.role.trim().length > 0;
+                    case 5: return formData.shout.trim().length > 0 && formData.worldChange.trim().length > 0;
+                    case 6: return formData.resolution.trim().length > 0;
                     default: return true;
                 }
             };
@@ -240,6 +284,14 @@
                 }
             };
 
+            // 그래프 점수 변경 핸들러
+            const handleGraphChange = (type, key, value) => {
+                setGraphData(prev => ({
+                    ...prev,
+                    [type]: { ...prev[type], [key]: parseInt(value) }
+                }));
+            };
+
             const handleTestMode = () => {
                 setFormData({
                     grade: '5',
@@ -255,19 +307,27 @@
                     worldChange: '서로 돕고 사랑하는 평화로운 세상',
                     resolution: '매일 친구들에게 따뜻한 말 한마디를 건네겠습니다'
                 });
+                setGraphData({
+                    before: { selfEsteem: 2, intimacy: 3, belonging: 2, empathy: 3, expression: 2 },
+                    after: { selfEsteem: 5, intimacy: 5, belonging: 4, empathy: 5, expression: 4 }
+                });
                 setImage("https://cdn-icons-png.flaticon.com/512/3135/3135715.png"); 
-                setStep(6);
+                setStep(7); // 결과 화면으로 이동
             };
 
-            // 강력한 복사 기능 (이미지 + 서식)
             const handleCopy = async () => {
                 if (!reportRef.current) return;
 
                 try {
-                    // 최신 Clipboard API 사용 (이미지 포함 복사에 유리)
+                    // 그래프 SVG를 이미지로 변환 (복사를 위해)
+                    const svgElement = reportRef.current.querySelector('.recharts-surface');
+                    if (svgElement) {
+                        // SVG 스타일 인라인화 (간단한 처리)
+                        svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                    }
+
                     const content = reportRef.current.innerHTML;
                     
-                    // 서식 보존을 위한 HTML 래퍼
                     const fullHtml = `
                         <!DOCTYPE html>
                         <html>
@@ -280,7 +340,6 @@
                     const blobHtml = new Blob([fullHtml], { type: 'text/html' });
                     const blobText = new Blob([reportRef.current.innerText], { type: 'text/plain' });
                     
-                    // ClipboardItem 생성 (지원하는 브라우저용)
                     if (typeof ClipboardItem !== "undefined") {
                         const data = [new ClipboardItem({
                             ["text/html"]: blobHtml,
@@ -294,7 +353,6 @@
                     throw new Error("ClipboardItem not supported");
 
                 } catch (err) {
-                    // Fallback: 기존 execCommand 방식
                     console.log("Fallback to execCommand", err);
                     const selection = window.getSelection();
                     const range = document.createRange();
@@ -381,13 +439,12 @@
                                         </div>
                                     </div>
 
-                                    {/* 이미지 업로드 섹션 (첫 페이지로 이동) */}
                                     <div className="p-4 bg-indigo-50 rounded-xl border-2 border-dashed border-indigo-200 text-center">
                                         <label className="block cursor-pointer hover:bg-indigo-100 transition-colors rounded-lg p-2">
                                             <div className="flex flex-col items-center justify-center gap-2">
                                                 <span className="text-3xl">📸</span>
                                                 <span className="text-indigo-700 font-bold">나의 조각 사진 올리기</span>
-                                                <span className="text-xs text-indigo-400"></span>
+                                                <span className="text-xs text-indigo-400">선택 사항 (없어도 돼요!)</span>
                                             </div>
                                             <input 
                                                 type="file" 
@@ -423,7 +480,57 @@
                             </div>
                         );
 
-                    case 1:
+                    case 1: // 성장 그래프 단계 (새로 추가됨)
+                        return (
+                            <QuestionStep
+                                icon="📊"
+                                color="indigo"
+                                title="나의 성장 그래프 만들기"
+                                description="아래 슬라이더를 움직여 활동 전과 후의 변화를 체크해보세요."
+                                step={step}
+                            >
+                                <div className="mb-6 flex justify-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                                    <GrowthChart beforeData={graphData.before} afterData={graphData.after} />
+                                </div>
+
+                                <div className="space-y-6">
+                                    {['selfEsteem:자아존중감', 'intimacy:친밀감', 'belonging:소속감', 'empathy:공감 능력', 'expression:표현력'].map((item) => {
+                                        const [key, label] = item.split(':');
+                                        return (
+                                            <div key={key} className="bg-gray-50 p-4 rounded-xl">
+                                                <div className="flex justify-between mb-2">
+                                                    <span className="font-bold text-gray-700">{label}</span>
+                                                </div>
+                                                <div className="flex flex-col gap-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-xs font-bold text-yellow-500 w-12">활동 전</span>
+                                                        <input 
+                                                            type="range" min="1" max="5" 
+                                                            value={graphData.before[key]} 
+                                                            onChange={(e) => handleGraphChange('before', key, e.target.value)}
+                                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-yellow-400"
+                                                        />
+                                                        <span className="text-sm font-bold w-4 text-center">{graphData.before[key]}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-xs font-bold text-green-500 w-12">활동 후</span>
+                                                        <input 
+                                                            type="range" min="1" max="5" 
+                                                            value={graphData.after[key]} 
+                                                            onChange={(e) => handleGraphChange('after', key, e.target.value)}
+                                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500"
+                                                        />
+                                                        <span className="text-sm font-bold w-4 text-center">{graphData.after[key]}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </QuestionStep>
+                        );
+
+                    case 2:
                         return (
                             <QuestionStep
                                 icon="📖"
@@ -436,7 +543,7 @@
                                 onChange={handleChange}
                                 onNext={handleNext}
                                 onBack={handleBack}
-                                placeholder="예: 꼼꼼하게 무언가를 만드는 것을 좋아한다. 친구의 이야기를 잘 들어주는 따뜻한 마음을 가졌다"
+                                placeholder="예: 꼼꼼하게 무언가를 만드는 것을 좋아한다, 친구의 이야기를 잘 들어주는 따뜻한 마음을 가졌다"
                                 step={step}
                                 isError={shakeInput}
                             >
@@ -465,7 +572,7 @@
                             </QuestionStep>
                         );
 
-                    case 2:
+                    case 3:
                         return (
                             <div className="flex flex-col h-full max-w-3xl mx-auto w-full p-4 animate-fade-in pb-10">
                                 <div className="flex items-center gap-3 mb-6">
@@ -512,7 +619,7 @@
                             </div>
                         );
 
-                    case 3:
+                    case 4:
                         return (
                             <QuestionStep
                                 icon="👨‍👩‍👧‍👦"
@@ -531,7 +638,7 @@
                             />
                         );
 
-                    case 4:
+                    case 5:
                         return (
                             <div className="flex flex-col h-full max-w-3xl mx-auto w-full p-4 animate-fade-in pb-10">
                                 <div className="flex items-center gap-3 mb-6">
@@ -578,7 +685,7 @@
                             </div>
                         );
 
-                    case 5:
+                    case 6:
                         return (
                             <QuestionStep
                                 icon="⭐"
@@ -598,7 +705,7 @@
                             />
                         );
 
-                    case 6:
+                    case 7:
                         return (
                             <div className="flex flex-col h-full max-w-3xl mx-auto w-full p-4 animate-fade-in">
                                 <div className="flex items-center justify-between mb-4 print:hidden">
@@ -606,10 +713,9 @@
                                         📄 최종 성찰 보고서 미리 보기
                                     </h2>
                                     <div className="flex gap-2">
-                                        {/* 수정하기 (이전) 버튼 추가 */}
                                         <button
                                             type="button"
-                                            onClick={() => setStep(prev => prev - 1)} // 바로 이전 단계(5단계)로 이동
+                                            onClick={() => setStep(prev => prev - 1)} 
                                             className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 text-sm bg-indigo-50 px-3 py-2 rounded-lg hover:bg-indigo-100 transition-colors font-bold border border-indigo-200"
                                         >
                                             ✏️ 수정하기 (이전)
@@ -622,6 +728,10 @@
                                                     ...prev,
                                                     selfDiscovery: '', feeling: '', classChange: '', role: '', shout: '', worldChange: '', resolution: ''
                                                 }));
+                                                setGraphData({
+                                                    before: { selfEsteem: 3, intimacy: 3, belonging: 3, empathy: 3, expression: 3 },
+                                                    after: { selfEsteem: 4, intimacy: 4, belonging: 4, empathy: 4, expression: 4 }
+                                                });
                                                 setImage(null); 
                                             }}
                                             className="text-gray-500 hover:text-gray-700 flex items-center gap-1 text-sm bg-gray-100 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors"
@@ -631,7 +741,7 @@
                                     </div>
                                 </div>
 
-                                {/* 보고서 영역 (복사 대상) - 1장 인쇄 최적화 */}
+                                {/* 보고서 영역 (복사 대상) - 2단 구성 */}
                                 <div ref={reportRef} className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 flex-1 overflow-y-auto custom-scrollbar relative mx-auto w-full max-w-2xl select-text">
                                     <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-gray-50 to-transparent"></div>
                                     <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-gray-100 to-transparent rounded-bl-3xl opacity-50 pointer-events-none"></div>
@@ -647,13 +757,27 @@
                                         나의 소중한 조각을 찾아서
                                     </h1>
 
-                                    {/* 업로드된 이미지 표시 영역 (크기 축소 및 가운데 정렬 수정) */}
-                                    {image && (
-                                        <div style={{marginBottom: '20px', textAlign: 'center'}}>
-                                            <img src={image} alt="나의 조각" style={{display: 'block', margin: '0 auto', maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', border: '4px solid white'}} />
-                                            <p style={{fontSize: '0.75rem', color: '#9ca3af', marginTop: '4px'}}>▲ 나의 소중한 조각</p>
+                                    {/* 이미지 & 그래프 2단 레이아웃 */}
+                                    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: '20px', marginBottom: '20px'}}>
+                                        {/* 왼쪽: 사진 */}
+                                        {image && (
+                                            <div style={{flex: 1, textAlign: 'center'}}>
+                                                <img src={image} alt="나의 조각" style={{display: 'block', margin: '0 auto', maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', border: '4px solid white'}} />
+                                                <p style={{fontSize: '0.75rem', color: '#9ca3af', marginTop: '4px'}}>▲ 나의 소중한 조각</p>
+                                            </div>
+                                        )}
+                                        {/* 오른쪽: 그래프 */}
+                                        <div style={{flex: 1, textAlign: 'center', minWidth: '200px'}}>
+                                            <div className="transform scale-90 origin-top">
+                                                <GrowthChart beforeData={graphData.before} afterData={graphData.after} showLegend={false} height={180} />
+                                            </div>
+                                            <div style={{fontSize: '0.7rem', color: '#9ca3af', display: 'flex', justifyContent: 'center', gap: '8px'}}>
+                                                <span style={{color: '#fbbf24'}}>● 활동 전</span>
+                                                <span style={{color: '#22c55e'}}>● 활동 후</span>
+                                            </div>
+                                            <p style={{fontSize: '0.75rem', color: '#9ca3af', marginTop: '2px'}}>▲ 나의 성장 그래프</p>
                                         </div>
-                                    )}
+                                    </div>
 
                                     <div style={{fontSize: '0.95rem', lineHeight: '1.6', color: '#374151', display: 'flex', flexDirection: 'column', gap: '12px'}}>
                                         <section>
@@ -670,7 +794,7 @@
                                                 <span style={{backgroundColor: '#fce7f3', padding: '2px 8px', borderRadius: '0.25rem', fontSize: '0.8rem'}}>Chapter 2</span> 함께하는 기쁨
                                             </h3>
                                             <p style={{backgroundColor: 'rgba(253, 242, 248, 0.5)', padding: '10px', borderRadius: '0.5rem', borderLeft: '4px solid #fbcfe8'}}>
-                                                친구들의 조각에 긍정적인 댓글을 달아주었을 때, 제 마음은 <span style={{fontWeight: 'bold', color: '#be185d', backgroundColor: '#fce7f3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.feeling || '___'}</span>. 그리고 이런 행동들이 모여 우리 반은 <span style={{fontWeight: 'bold', color: '#be185d', backgroundColor: '#fce7f3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.classChange || '___'}</span>게 변할 수 있습니다.
+                                                친구들의 조각에 긍정적인 댓글을 달아주었을 때, 제 마음은 <span style={{fontWeight: 'bold', color: '#be185d', backgroundColor: '#fce7f3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.feeling || '___'}</span>했습니다. 그리고 이런 행동들이 모여 우리 반은 <span style={{fontWeight: 'bold', color: '#be185d', backgroundColor: '#fce7f3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.classChange || '___'}</span>게 변할 수 있습니다.
                                             </p>
                                         </section>
 
@@ -697,7 +821,7 @@
                                                 <span style={{backgroundColor: '#fef9c3', padding: '2px 8px', borderRadius: '0.25rem', fontSize: '0.8rem'}}>Chapter 5</span> 나의 다짐
                                             </h3>
                                             <p style={{backgroundColor: 'rgba(254, 252, 232, 0.5)', padding: '10px', borderRadius: '0.5rem', borderLeft: '4px solid #fde047'}}>
-                                                이 활동을 통해 저는 '나의 작은 조각도 큰 힘을 가지고 있다'는 것을 배웠습니다. 앞으로 저는 제가 발견한 긍정의 힘을 <span style={{fontWeight: 'bold', color: '#a16207', backgroundColor: '#fef9c3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.resolution || '___'}</span>.
+                                                이 활동을 통해 저는 '나의 작은 조각도 큰 힘을 가지고 있다'는 것을 배웠습니다. 앞으로 저는 제가 발견한 긍정의 힘을 <span style={{fontWeight: 'bold', color: '#a16207', backgroundColor: '#fef9c3', padding: '0 4px', borderRadius: '0.25rem'}}>{formData.resolution || '___'}</span>하겠습니다.
                                             </p>
                                         </section>
                                     </div>
