@@ -317,4 +317,33 @@
                                     <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', textAlign: 'center', color: '#1f2937', marginBottom: '15px', borderBottom: '4px double #e5e7eb', paddingBottom: '10px'}}>나의 소중한 조각을 찾아서</h1>
                                     <div style={{display: 'flex', gap: '20px', marginBottom: '20px'}}>
                                         {image && <div style={{flex: 1, textAlign: 'center'}}><img src={image} style={{maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', borderRadius: '0.5rem'}} /><p style={{fontSize: '0.75rem', color: '#9ca3af'}}>▲ 나의 소중한 조각</p></div>}
-                                        <div style={{flex: 1,
+                                        <div style={{flex: 1, textAlign: 'center', minWidth: '200px'}}><div className="transform scale-90 origin-top"><GrowthChart beforeData={graphData.before} afterData={graphData.after} showLegend={false} height={180} /></div><p style={{fontSize: '0.75rem', color: '#9ca3af'}}>▲ 나의 성장 그래프</p></div>
+                                    </div>
+                                    <div style={{fontSize: '0.95rem', lineHeight: '1.8', color: '#374151', display: 'flex', flexDirection: 'column', gap: '15px'}}>
+                                        <section><h3 style={{fontWeight: 'bold', color: '#2563eb', marginBottom: '4px'}}>Chapter 1. 나를 깨닫다</h3><p style={{background: '#eff6ff', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #3b82f6'}}>저는 이번 프로젝트를 통해 저의 작은 조각을 만들었습니다. 제 조각의 이름은 <strong style={{color: formData.selectedColor, backgroundColor: 'white', padding: '0 4px', border: '1px solid #ddd', borderRadius: '4px'}}>{formData.selectedColorName}</strong>이며 <span style={{fontWeight: 'bold', color: '#1e40af'}}>{formData.selectedColorMeaning || '_______'}</span>입니다. 조각을 만들며 저는 제가 <span style={{fontWeight: 'bold', color: '#1e40af'}}>{formData.selfDiscovery}</span>라는 것을 새롭게 알게 되었습니다.</p></section>
+                                        <section><h3 style={{fontWeight: 'bold', color: '#db2777', marginBottom: '4px'}}>Chapter 2. 함께하는 기쁨</h3><p style={{background: '#fdf2f8', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #ec4899'}}>친구들의 조각에 긍정적인 댓글을 달아주었을 때 제 마음은 <span style={{fontWeight: 'bold', color: '#be185d'}}>{formData.feeling}</span>했습니다. 그리고 이런 행동들이 모여 우리 반은 <span style={{fontWeight: 'bold', color: '#be185d'}}>{formData.classChange}</span>되었습니다.</p></section>
+                                        <section><h3 style={{fontWeight: 'bold', color: '#16a34a', marginBottom: '4px'}}>Chapter 3. 소중한 역할</h3><p style={{background: '#f0fdf4', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #22c55e'}}>우리반이 하나의 멋진 작품이라면 저는 그 안에서 <span style={{fontWeight: 'bold', color: '#15803d'}}>{formData.role}</span> 역할을 하여 친구들에게 도움을 주고 싶습니다.</p></section>
+                                        <section><h3 style={{fontWeight: 'bold', color: '#4f46e5', marginBottom: '4px'}}>Chapter 4. 세상에 외치는 한마디</h3><p style={{background: '#eef2ff', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #6366f1'}}>만약, 제 조각이 온 세상에 말을 할 수 있다면 저는 큰소리로 "<span style={{fontWeight: 'bold', color: '#4338ca'}}>{formData.shout}</span>"라고 외치고 싶습니다.</p></section>
+                                        <section><h3 style={{fontWeight: 'bold', color: '#ca8a04', marginBottom: '4px'}}>Chapter 5. 나의 다짐</h3><p style={{background: '#fefce8', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #eab308'}}>이 활동을 통해 저는 나의 작은 조각도 큰 힘을 가지고 있다는 것을 깨닫습니다. 앞으로 저는 제가 발견한 긍정의 힘을 <span style={{fontWeight: 'bold', color: '#a16207'}}>{formData.resolution}</span>.</p></section>
+                                    </div>
+                                    <div style={{marginTop: '24px', paddingTop: '12px', borderTop: '1px solid #e5e7eb', textAlign: 'center', color: '#9ca3af', fontSize: '0.8rem'}}>✨ My Wonderful Growth Story ✨</div>
+                                </div>
+                                <div className="mt-6 flex justify-center print:hidden"><button type="button" onClick={handleCaptureCopy} disabled={isCapturing} className={`px-8 py-4 rounded-full font-bold text-lg shadow-xl ${copied ? 'bg-green-500 text-white' : 'bg-gray-900 text-white'}`}>{isCapturing ? '📸 캡처 중...' : (copied ? '✅ 복사 완료!' : '📋 이미지로 전체 복사하기')}</button></div>
+                            </div>
+                        );
+                    default: return null;
+                }
+            };
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <header className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10 shadow-sm"><div className="max-w-4xl mx-auto flex items-center gap-2 text-blue-600 font-bold"><span>✨ Growth Project</span>{step >= 1 && step <= 5 && <span className="text-gray-400 text-sm font-normal">Step {step}/5</span>}</div></header>
+                    {step >= 1 && step <= 5 && <div className="w-full h-1.5 bg-gray-200 sticky top-[61px] z-10"><div className="h-full bg-blue-500 transition-all duration-500" style={{ width: `${(step / 5) * 100}%` }}></div></div>}
+                    <main className="flex-1 w-full max-w-4xl mx-auto flex flex-col p-4 md:p-6 pb-12">{renderContent()}</main>
+                </div>
+            );
+        }
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
