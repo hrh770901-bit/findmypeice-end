@@ -21,15 +21,14 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
         
+        /* 애니메이션 */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-            20%, 40%, 60%, 80% { transform: translateX(4px); }
-        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 90% { transform: translateX(-4px); } 50% { transform: translateX(4px); } }
         .animate-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        
+        /* 플레이스홀더 스타일링 (더 흐리게) */
+        ::placeholder { color: #9ca3af; opacity: 0.7; }
     </style>
 </head>
 <body class="bg-indigo-50 text-gray-900">
@@ -39,20 +38,20 @@
         const { useState, useEffect, useRef } = React;
         const { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend } = window.Recharts || {};
 
-        // ★ [핵심 기능] 색상별 해석(meaning) 데이터 정의
+        // 색상 및 의미 데이터
         const COLOR_PALETTE = [
-            { name: "열정의 빨강", value: "#ef4444", meaning: "뜨거운 열정과 지치지 않는 에너지를 가진 사람", text: "text-red-500" },
-            { name: "에너지 주황", value: "#f97316", meaning: "주변을 즐겁게 만드는 비타민 같은 사람", text: "text-orange-500" },
-            { name: "긍정의 노랑", value: "#eab308", meaning: "언제나 밝고 희망찬 긍정의 힘을 주는 사람", text: "text-yellow-500" },
-            { name: "싱그러운 연두", value: "#84cc16", meaning: "새로운 도전과 성장을 두려워하지 않는 사람", text: "text-lime-500" },
-            { name: "성실한 초록", value: "#22c55e", meaning: "성실하게 노력하며 평화를 사랑하는 사람", text: "text-green-500" },
-            { name: "강인한 블랙", value: "#1f2937", meaning: "어떤 상황에서도 흔들리지 않는 굳건한 사람", text: "text-gray-900" }, 
-            { name: "자유로운 하늘", value: "#0ea5e9", meaning: "넓은 마음으로 친구들을 이해하는 자유로운 사람", text: "text-sky-500" },
-            { name: "지혜로운 파랑", value: "#3b82f6", meaning: "깊이 생각하고 지혜롭게 행동하는 사람", text: "text-blue-500" },
-            { name: "신비한 남색", value: "#6366f1", meaning: "남들이 보지 못하는 특별한 시선을 가진 사람", text: "text-indigo-500" },
-            { name: "창의적 보라", value: "#a855f7", meaning: "독창적인 생각으로 세상을 아름답게 만드는 사람", text: "text-purple-500" },
-            { name: "따뜻한 분홍", value: "#ec4899", meaning: "따뜻한 사랑과 배려로 친구를 감싸주는 사람", text: "text-pink-500" },
-            { name: "차분한 회색", value: "#6b7280", meaning: "묵묵히 자신의 자리를 지키며 믿음을 주는 사람", text: "text-gray-500" }
+            { name: "열정의 빨강", value: "#ef4444", meaning: "뜨거운 열정과 에너지", text: "text-red-500" },
+            { name: "에너지 주황", value: "#f97316", meaning: "즐거움을 주는 비타민", text: "text-orange-500" },
+            { name: "긍정의 노랑", value: "#eab308", meaning: "희망찬 긍정의 힘", text: "text-yellow-500" },
+            { name: "싱그러운 연두", value: "#84cc16", meaning: "새로운 도전과 성장", text: "text-lime-500" },
+            { name: "성실한 초록", value: "#22c55e", meaning: "성실함과 평화", text: "text-green-500" },
+            { name: "강인한 블랙", value: "#1f2937", meaning: "흔들리지 않는 굳건함", text: "text-gray-900" }, 
+            { name: "자유로운 하늘", value: "#0ea5e9", meaning: "넓은 마음과 자유", text: "text-sky-500" },
+            { name: "지혜로운 파랑", value: "#3b82f6", meaning: "깊은 생각과 지혜", text: "text-blue-500" },
+            { name: "신비한 남색", value: "#6366f1", meaning: "특별한 시선과 직관", text: "text-indigo-500" },
+            { name: "창의적 보라", value: "#a855f7", meaning: "세상을 바꾸는 독창성", text: "text-purple-500" },
+            { name: "따뜻한 분홍", value: "#ec4899", meaning: "따뜻한 사랑과 배려", text: "text-pink-500" },
+            { name: "차분한 회색", value: "#6b7280", meaning: "믿음직한 묵묵함", text: "text-gray-500" }
         ];
 
         // 공통 질문 컴포넌트
@@ -106,244 +105,7 @@
                                     value={value}
                                     onChange={onChange}
                                     placeholder={placeholder}
-                                    className={`w-full p-6 border-2 rounded-2xl outline-none transition-all min-h-[300px] text-lg leading-loose shadow-inner resize-y ${displayColorClass.split(' ').slice(1).join(' ')} focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${isError && value.length === 0 ? 'border-red-500 ring-2 ring-red-200 animate-shake' : 'border-gray-200'}`}
+                                    className={`w-full p-6 border-2 rounded-2xl outline-none transition-all min-h-[300px] text-lg leading-loose shadow-inner resize-y ${displayColorClass.split(' ').slice(1).join(' ')} focus:ring-2 focus:ring-blue-400 focus:border-blue-400 placeholder-gray-400 ${isError && value.length === 0 ? 'border-red-500 ring-2 ring-red-200 animate-shake' : 'border-gray-200'}`}
                                 ></textarea>
                                 <p className={`text-right text-sm mt-3 font-medium flex justify-end items-center gap-1 ${isError && value.length === 0 ? 'text-red-500 font-bold' : 'text-gray-400'}`}>
-                                    {isError && value.length === 0 ? '⚠️ 내용을 입력해주세요!' : (value.length > 0 ? `✅ 작성중... (${value.length}자)` : '내용을 입력해주세요')}
-                                </p>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="flex justify-between items-center mt-auto py-4 px-2">
-                        <button type="button" onClick={onBack} className="px-6 py-3 text-gray-500 hover:text-gray-800 font-bold rounded-full hover:bg-gray-200 transition-colors flex items-center gap-2">👈 이전</button>
-                        <button type="button" onClick={onNext} className={`px-10 py-3.5 rounded-full text-white font-bold shadow-lg shadow-gray-200 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-2 ${isLast ? 'bg-gray-900 hover:bg-black text-lg' : 'bg-blue-500 hover:bg-blue-600'}`}>{isLast ? '완성하기 ✨' : '다음 👉'}</button>
-                    </div>
-                </div>
-            );
-        };
-
-        const GrowthChart = ({ beforeData, afterData, showLegend = true, height = 300 }) => {
-            if (!RadarChart) return <div className="text-red-500">그래프 로딩 실패</div>; 
-            const data = [
-                { subject: '자아존중감', A: beforeData.selfEsteem, B: afterData.selfEsteem, fullMark: 5 },
-                { subject: '친밀감', A: beforeData.intimacy, B: afterData.intimacy, fullMark: 5 },
-                { subject: '소속감', A: beforeData.belonging, B: afterData.belonging, fullMark: 5 },
-                { subject: '공감 능력', A: beforeData.empathy, B: afterData.empathy, fullMark: 5 },
-                { subject: '표현력', A: beforeData.expression, B: afterData.expression, fullMark: 5 },
-            ];
-            return (
-                <div style={{ width: '100%', height: height }}>
-                    <ResponsiveContainer>
-                        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-                            <PolarGrid />
-                            <PolarAngleAxis dataKey="subject" tick={{ fill: '#4b5563', fontSize: 12 }} />
-                            <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
-                            <Radar name="활동 전" dataKey="A" stroke="#fbbf24" fill="#fbbf24" fillOpacity={0.3} />
-                            <Radar name="활동 후" dataKey="B" stroke="#22c55e" fill="#22c55e" fillOpacity={0.4} />
-                            {showLegend && <Legend />}
-                        </RadarChart>
-                    </ResponsiveContainer>
-                </div>
-            );
-        };
-
-        function App() {
-            const [step, setStep] = useState(0); 
-            const [formData, setFormData] = useState({
-                grade: '5', classNum: '', name: '',
-                selectedColor: '', selectedColorName: '', selectedColorMeaning: '', // 색상 의미 추가
-                selfDiscovery: '', feeling: '', classChange: '', role: '', shout: '', worldChange: '', resolution: ''
-            });
-            const [graphData, setGraphData] = useState({
-                before: { selfEsteem: 3, intimacy: 3, belonging: 3, empathy: 3, expression: 3 },
-                after: { selfEsteem: 4, intimacy: 4, belonging: 4, empathy: 4, expression: 4 }
-            });
-            const [image, setImage] = useState(null);
-            const [copied, setCopied] = useState(false);
-            const [shakeInput, setShakeInput] = useState(false);
-            const [isCapturing, setIsCapturing] = useState(false);
-            const reportRef = useRef(null);
-
-            useEffect(() => { window.scrollTo(0, 0); }, [step]);
-
-            const validateStep = (currentStep) => {
-                switch(currentStep) {
-                    case 0: return formData.grade && formData.classNum && formData.name;
-                    case 1: return formData.selfDiscovery.trim().length > 0 && formData.selectedColorName !== ''; 
-                    case 2: return formData.feeling.trim().length > 0 && formData.classChange.trim().length > 0;
-                    case 3: return formData.role.trim().length > 0;
-                    case 4: return formData.shout.trim().length > 0 && formData.worldChange.trim().length > 0;
-                    case 5: return formData.resolution.trim().length > 0;
-                    case 6: return true;
-                    default: return true;
-                }
-            };
-
-            const handleNext = () => {
-                if (!validateStep(step)) { setShakeInput(true); setTimeout(() => setShakeInput(false), 500); return; }
-                setStep((prev) => prev + 1);
-            };
-            const handleBack = () => setStep((prev) => prev - 1);
-            const handleChange = (e) => setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-            
-            // 색상 선택 시 의미(meaning)도 함께 저장
-            const handleColorSelect = (color) => {
-                setFormData((prev) => ({
-                    ...prev,
-                    selectedColor: color.value,
-                    selectedColorName: color.name,
-                    selectedColorMeaning: color.meaning
-                }));
-            };
-
-            const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onloadend = () => setImage(reader.result); reader.readAsDataURL(file); } };
-            const handleGraphChange = (type, key, value) => setGraphData(prev => ({ ...prev, [type]: { ...prev[type], [key]: parseInt(value) } }));
-
-            const handleTestMode = () => {
-                setFormData({
-                    grade: '5', classNum: '1', name: '김성장',
-                    selectedColor: '#ef4444', selectedColorName: '열정의 빨강', selectedColorMeaning: '뜨거운 열정과 지치지 않는 에너지를 가진 사람',
-                    selfDiscovery: '끈기 있게 노력하는 사람', feeling: '뿌듯', classChange: '서로 돕는 반이',
-                    role: '친구들의 이야기를 들어주는', shout: '너는 혼자가 아니야!', worldChange: '따뜻한 세상',
-                    resolution: '매일 친구들에게 칭찬 한마디씩 건네겠습니다'
-                });
-                setStep(7);
-            };
-
-            const handleCaptureCopy = async () => {
-                if (!reportRef.current) return;
-                setIsCapturing(true);
-                try {
-                    const canvas = await html2canvas(reportRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
-                    canvas.toBlob(async (blob) => {
-                        try {
-                            const data = [new ClipboardItem({ [blob.type]: blob })];
-                            await navigator.clipboard.write(data);
-                            setCopied(true);
-                            setTimeout(() => setCopied(false), 2000);
-                        } catch (err) { alert("이미지 복사에 실패했습니다."); }
-                        setIsCapturing(false);
-                    });
-                } catch (err) { alert("캡처 중 오류가 발생했습니다."); setIsCapturing(false); }
-            };
-
-            const renderContent = () => {
-                switch (step) {
-                    case 0:
-                        return (
-                            <div className="flex flex-col items-center justify-center min-h-[90vh] text-center p-6 space-y-6 animate-fade-in relative max-w-lg mx-auto">
-                                <button type="button" onClick={handleTestMode} className="absolute top-0 right-0 m-2 text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full hover:bg-gray-200">🧪 테스트</button>
-                                <div className="space-y-4">
-                                    <div className="bg-white p-6 rounded-full inline-block shadow-md mb-2"><div className="text-6xl animate-bounce">🌟</div></div>
-                                    <h1 className="text-3xl font-bold text-gray-800 break-keep leading-tight">나의 조각 찾기 프로젝트:<br /><span className="text-blue-600">최종 성찰</span></h1>
-                                    <p className="text-gray-600 mb-4">질문에 답을 하면 <strong>'나만의 성장 이야기'</strong>가 완성됩니다!</p>
-                                </div>
-                                <div className={`bg-white p-6 rounded-2xl shadow-lg w-full border-2 transition-all ${shakeInput ? 'border-red-400 animate-shake' : 'border-blue-100'}`}>
-                                    <h3 className="text-lg font-bold text-gray-700 mb-4 text-left flex items-center gap-2"><span>📝</span> 이름을 적어주세요</h3>
-                                    <div className="flex gap-2 mb-4">
-                                        <input type="number" name="grade" value={formData.grade} onChange={handleChange} className="w-1/3 p-3 bg-gray-50 border border-gray-200 rounded-xl text-center font-bold text-lg" />
-                                        <input type="number" name="classNum" value={formData.classNum} onChange={handleChange} placeholder="반" className="w-1/3 p-3 bg-gray-50 border border-gray-200 rounded-xl text-center font-bold text-lg" />
-                                        <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="이름" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-center font-bold text-lg" />
-                                    </div>
-                                    <div className="p-4 bg-indigo-50 rounded-xl border-2 border-dashed border-indigo-200 text-center"><label className="block cursor-pointer hover:bg-indigo-100 transition-colors rounded-lg p-2"><div className="flex flex-col items-center justify-center gap-2"><span className="text-3xl">📸</span><span className="text-indigo-700 font-bold">나의 조각 사진 올리기</span></div><input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" /></label>{image && <div className="mt-4 relative inline-block"><img src={image} className="h-40 object-contain rounded-lg shadow-md border border-white" /><button type="button" onClick={() => setImage(null)} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">✕</button></div>}</div>
-                                    {shakeInput && <p className="text-red-500 text-sm font-bold text-right mt-2">반과 이름을 모두 입력해주세요! 😅</p>}
-                                </div>
-                                <button type="button" onClick={handleNext} className="w-full py-4 bg-blue-600 text-white rounded-xl text-xl font-bold shadow-lg hover:bg-blue-700 transition-all transform hover:-translate-y-1">시작하기 👉</button>
-                            </div>
-                        );
-                    case 1:
-                        return (
-                            <QuestionStep icon="📖" color="purple" title="1단계: 자기 이해" description="나의 진정한 색깔은 무엇인가요? 조각을 만들면서 알게 된 나의 장점이나 성격은 무엇인가요?" question="저는 제가 _______________ 라는 것을 새롭게 알게 되었습니다." name="selfDiscovery" value={formData.selfDiscovery} onChange={handleChange} onNext={handleNext} onBack={handleBack} placeholder="예: 꼼꼼하게 무언가를 만드는 것을 좋아한다" step={step} isError={shakeInput}>
-                                <div className={`mb-6 p-5 bg-white rounded-xl border-2 ${shakeInput && !formData.selectedColorName ? 'border-red-400 animate-shake' : 'border-gray-100'} shadow-sm`}>
-                                    <label className="block text-gray-700 font-bold mb-3 flex items-center gap-2">🎨 나를 표현하는 색깔을 골라보세요</label>
-                                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
-                                        {COLOR_PALETTE.map((c) => (
-                                            <button key={c.value} type="button" onClick={() => handleColorSelect(c)} className={`w-full aspect-square rounded-full shadow-sm flex items-center justify-center transition-all transform hover:scale-110 ${formData.selectedColor === c.value ? 'ring-4 ring-offset-2 ring-purple-400 scale-110' : ''}`} style={{ backgroundColor: c.value }} title={c.meaning}>
-                                                {formData.selectedColor === c.value && <span className="text-white text-lg drop-shadow-md">✔</span>}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    {shakeInput && !formData.selectedColorName && <p className="text-red-500 text-sm mt-2 text-right font-bold">색깔도 꼭 선택해주세요! 🎨</p>}
-                                </div>
-                            </QuestionStep>
-                        );
-                    case 2:
-                        return (
-                            <div className="flex flex-col h-full max-w-3xl mx-auto w-full p-4 animate-fade-in pb-10">
-                                <div className="flex items-center gap-3 mb-6"><div className="bg-pink-100 p-3 rounded-xl text-3xl">💖</div><h2 className="text-2xl font-bold text-gray-800">2단계: 관계</h2></div>
-                                <div className="flex-1 flex flex-col space-y-8 overflow-y-auto pb-4 custom-scrollbar">
-                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all focus-within:ring-2 focus-within:ring-pink-200 flex flex-col"><label className="block text-gray-700 font-bold mb-3 text-lg">Q1. 친구들에게 긍정적인 댓글을 달아주었을 때, 제 마음은 어땠나요?</label><textarea name="feeling" value={formData.feeling} onChange={handleChange} placeholder="예: 뿌듯하고 따뜻" className="w-full p-4 border-2 rounded-xl outline-none transition-all min-h-[150px] resize-y text-lg bg-pink-50/30 leading-relaxed focus:border-pink-400"></textarea><p className="text-gray-400 text-sm mt-2 text-right">... 했습니다.</p></div>
-                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all focus-within:ring-2 focus-within:ring-pink-200 flex flex-col"><label className="block text-gray-700 font-bold mb-3 text-lg">Q2. 이런 행동들이 모여 우리 반은 어떻게 변할까요?</label><textarea name="classChange" value={formData.classChange} onChange={handleChange} placeholder="예: 서로를 더 믿고 응원하는 사이가" className="w-full p-4 border-2 rounded-xl outline-none transition-all min-h-[150px] resize-y text-lg bg-pink-50/30 leading-relaxed focus:border-pink-400"></textarea><p className="text-gray-400 text-sm mt-2 text-right">... 되었습니다.</p></div>
-                                    {shakeInput && <p className="text-center text-red-500 font-bold animate-shake">⚠️ 모든 질문에 답을 해주세요!</p>}
-                                </div>
-                                <div className="flex justify-between items-center mt-auto py-4 px-2"><button type="button" onClick={handleBack} className="px-6 py-3 text-gray-500 font-bold rounded-full hover:bg-gray-200">👈 이전</button><button type="button" onClick={handleNext} className="px-10 py-3.5 rounded-full text-white font-bold bg-pink-500 hover:bg-pink-600 shadow-lg">다음 👉</button></div>
-                            </div>
-                        );
-                    case 3:
-                        return <QuestionStep icon="👨‍👩‍👧‍👦" color="green" title="3단계: 공동체" description="우리 반이라는 큰 그림 속에서, 나의 장점으로 친구들에게 어떤 도움을 줄 수 있을까요?" question="우리 반이 하나의 멋진 작품이라면, 저는 그 안에서 _______________ 역할을 하여 친구들에게 도움을 주고 싶습니다." name="role" value={formData.role} onChange={handleChange} onNext={handleNext} onBack={handleBack} placeholder="예: 비타민 같은, 묵묵히 돕는" step={step} isError={shakeInput} />;
-                    case 4:
-                        return (
-                            <div className="flex flex-col h-full max-w-3xl mx-auto w-full p-4 animate-fade-in pb-10">
-                                <div className="flex items-center gap-3 mb-6"><div className="bg-indigo-100 p-3 rounded-xl text-3xl">🌏</div><h2 className="text-2xl font-bold text-gray-800">4단계: 성장 의지</h2></div>
-                                <div className="flex-1 flex flex-col space-y-8 overflow-y-auto pb-4 custom-scrollbar">
-                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all focus-within:ring-2 focus-within:ring-indigo-200 flex flex-col"><label className="block text-gray-700 font-bold mb-3 text-lg">Q1. 만약 제 조각이 말을 할 수 있다면, 세상에 뭐라고 외치고 싶나요?</label><textarea name="shout" value={formData.shout} onChange={handleChange} placeholder="예: 너는 그 자체로 소중해!" className="w-full p-4 border-2 rounded-xl outline-none transition-all min-h-[150px] resize-y text-lg bg-indigo-50/30 leading-relaxed focus:border-indigo-400"></textarea><p className="text-gray-400 text-sm mt-2 text-right">... 라고 외치고 싶습니다.</p></div>
-                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all focus-within:ring-2 focus-within:ring-indigo-200 flex flex-col"><label className="block text-gray-700 font-bold mb-3 text-lg">Q2. 그러면 세상은 어떻게 바뀔까요?</label><textarea name="worldChange" value={formData.worldChange} onChange={handleChange} placeholder="예: 모두가 웃음꽃이 피는 평화로운 곳" className="w-full p-4 border-2 rounded-xl outline-none transition-all min-h-[150px] resize-y text-lg bg-indigo-50/30 leading-relaxed focus:border-indigo-400"></textarea><p className="text-gray-400 text-sm mt-2 text-right">(생각 넓히기용 질문입니다)</p></div>
-                                    {shakeInput && <p className="text-center text-red-500 font-bold animate-shake">⚠️ 모든 질문에 답을 해주세요!</p>}
-                                </div>
-                                <div className="flex justify-between items-center mt-auto py-4 px-2"><button type="button" onClick={handleBack} className="px-6 py-3 text-gray-500 font-bold rounded-full hover:bg-gray-200">👈 이전</button><button type="button" onClick={handleNext} className="px-10 py-3.5 rounded-full text-white font-bold bg-indigo-500 hover:bg-indigo-600 shadow-lg">다음 👉</button></div>
-                            </div>
-                        );
-                    case 5:
-                        return <QuestionStep icon="⭐" color="yellow" title="마지막: 나의 다짐" description="나의 작은 조각도 큰 힘을 가지고 있습니다." question="앞으로 저는 제가 발견한 긍정의 힘을 _______________ ." name="resolution" value={formData.resolution} onChange={handleChange} onNext={handleNext} onBack={handleBack} placeholder="예: 친구가 힘들 때 가장 먼저 달려가 위로하고..." step={step} isLast={true} isError={shakeInput} />;
-                    case 6:
-                        return (
-                            <QuestionStep icon="📊" color="indigo" title="나의 성장 그래프 만들기" description="아래 슬라이더를 움직여 활동 전과 후의 변화를 체크해보세요." step={step} onNext={handleNext} onBack={handleBack} isLast={true}>
-                                <div className="mb-6 flex justify-center bg-white p-4 rounded-xl shadow-sm border border-gray-100"><GrowthChart beforeData={graphData.before} afterData={graphData.after} /></div>
-                                <div className="space-y-6">{['selfEsteem:자아존중감', 'intimacy:친밀감', 'belonging:소속감', 'empathy:공감 능력', 'expression:표현력'].map((item) => { const [key, label] = item.split(':'); return (
-                                    <div key={key} className="bg-gray-50 p-4 rounded-xl"><div className="flex justify-between mb-2"><span className="font-bold text-gray-700">{label}</span></div><div className="flex flex-col gap-3"><div className="flex items-center gap-3"><span className="text-xs font-bold text-yellow-500 w-12">활동 전</span><input type="range" min="1" max="5" value={graphData.before[key]} onChange={(e) => handleGraphChange('before', key, e.target.value)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-yellow-400" /><span className="text-sm font-bold w-4 text-center">{graphData.before[key]}</span></div><div className="flex items-center gap-3"><span className="text-xs font-bold text-green-500 w-12">활동 후</span><input type="range" min="1" max="5" value={graphData.after[key]} onChange={(e) => handleGraphChange('after', key, e.target.value)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500" /><span className="text-sm font-bold w-4 text-center">{graphData.after[key]}</span></div></div></div>
-                                ); })}</div>
-                            </QuestionStep>
-                        );
-                    case 7:
-                        return (
-                            <div className="flex flex-col h-full max-w-3xl mx-auto w-full p-4 animate-fade-in">
-                                <div className="flex items-center justify-between mb-4 print:hidden">
-                                    <h2 className="text-2xl font-bold text-gray-800">📄 최종 성찰 보고서</h2>
-                                    <div className="flex gap-2"><button type="button" onClick={() => setStep(prev => prev - 1)} className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 text-sm bg-indigo-50 px-3 py-2 rounded-lg font-bold border border-indigo-200">✏️ 수정하기</button><button type="button" onClick={() => { setStep(0); setFormData({...formData, selfDiscovery: '', feeling: '', classChange: '', role: '', shout: '', worldChange: '', resolution: ''}); setImage(null); }} className="text-gray-500 hover:text-gray-700 flex items-center gap-1 text-sm bg-gray-100 px-3 py-2 rounded-lg font-bold">🔄 처음으로</button></div>
-                                </div>
-                                <div ref={reportRef} className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 flex-1 overflow-y-auto custom-scrollbar relative mx-auto w-full max-w-2xl select-text">
-                                    <div style={{textAlign: 'right', borderBottom: '2px solid #f3f4f6', paddingBottom: '10px', marginBottom: '10px', color: '#6b7280'}}><span style={{fontWeight: 'bold', color: '#1f2937'}}>{formData.grade}학년 {formData.classNum}반</span> <span>이름: <strong style={{color: '#2563eb', textDecoration: 'underline'}}>{formData.name}</strong></span></div>
-                                    <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', textAlign: 'center', color: '#1f2937', marginBottom: '15px', borderBottom: '4px double #e5e7eb', paddingBottom: '10px'}}>나의 소중한 조각을 찾아서</h1>
-                                    <div style={{display: 'flex', gap: '20px', marginBottom: '20px'}}>
-                                        {image && <div style={{flex: 1, textAlign: 'center'}}><img src={image} style={{maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', borderRadius: '0.5rem'}} /><p style={{fontSize: '0.75rem', color: '#9ca3af'}}>▲ 나의 소중한 조각</p></div>}
-                                        <div style={{flex: 1, textAlign: 'center', minWidth: '200px'}}><div className="transform scale-90 origin-top"><GrowthChart beforeData={graphData.before} afterData={graphData.after} showLegend={false} height={180} /></div><p style={{fontSize: '0.75rem', color: '#9ca3af'}}>▲ 나의 성장 그래프</p></div>
-                                    </div>
-                                    <div style={{fontSize: '0.95rem', lineHeight: '1.8', color: '#374151', display: 'flex', flexDirection: 'column', gap: '15px'}}>
-                                        <section><h3 style={{fontWeight: 'bold', color: '#2563eb', marginBottom: '4px'}}>Chapter 1. 나를 깨닫다</h3><p style={{background: '#eff6ff', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #3b82f6'}}>저는 이번 프로젝트를 통해 저의 작은 조각을 만들었습니다. 제 조각의 이름은 <strong style={{color: formData.selectedColor, backgroundColor: 'white', padding: '0 4px', border: '1px solid #ddd', borderRadius: '4px'}}>{formData.selectedColorName}</strong>이며 <span style={{fontWeight: 'bold', color: '#1e40af'}}>{formData.selectedColorMeaning || '_______'}</span>입니다. 조각을 만들며 저는 제가 <span style={{fontWeight: 'bold', color: '#1e40af'}}>{formData.selfDiscovery}</span>라는 것을 새롭게 알게 되었습니다.</p></section>
-                                        <section><h3 style={{fontWeight: 'bold', color: '#db2777', marginBottom: '4px'}}>Chapter 2. 함께하는 기쁨</h3><p style={{background: '#fdf2f8', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #ec4899'}}>친구들의 조각에 긍정적인 댓글을 달아주었을 때 제 마음은 <span style={{fontWeight: 'bold', color: '#be185d'}}>{formData.feeling}</span>했습니다. 그리고 이런 행동들이 모여 우리 반은 <span style={{fontWeight: 'bold', color: '#be185d'}}>{formData.classChange}</span>되었습니다.</p></section>
-                                        <section><h3 style={{fontWeight: 'bold', color: '#16a34a', marginBottom: '4px'}}>Chapter 3. 소중한 역할</h3><p style={{background: '#f0fdf4', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #22c55e'}}>우리반이 하나의 멋진 작품이라면 저는 그 안에서 <span style={{fontWeight: 'bold', color: '#15803d'}}>{formData.role}</span> 역할을 하여 친구들에게 도움을 주고 싶습니다.</p></section>
-                                        <section><h3 style={{fontWeight: 'bold', color: '#4f46e5', marginBottom: '4px'}}>Chapter 4. 세상에 외치는 한마디</h3><p style={{background: '#eef2ff', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #6366f1'}}>만약, 제 조각이 온 세상에 말을 할 수 있다면 저는 큰소리로 "<span style={{fontWeight: 'bold', color: '#4338ca'}}>{formData.shout}</span>"라고 외치고 싶습니다.</p></section>
-                                        <section><h3 style={{fontWeight: 'bold', color: '#ca8a04', marginBottom: '4px'}}>Chapter 5. 나의 다짐</h3><p style={{background: '#fefce8', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #eab308'}}>이 활동을 통해 저는 나의 작은 조각도 큰 힘을 가지고 있다는 것을 깨닫습니다. 앞으로 저는 제가 발견한 긍정의 힘을 <span style={{fontWeight: 'bold', color: '#a16207'}}>{formData.resolution}</span>.</p></section>
-                                    </div>
-                                    <div style={{marginTop: '24px', paddingTop: '12px', borderTop: '1px solid #e5e7eb', textAlign: 'center', color: '#9ca3af', fontSize: '0.8rem'}}>✨ My Wonderful Growth Story ✨</div>
-                                </div>
-                                <div className="mt-6 flex justify-center print:hidden"><button type="button" onClick={handleCaptureCopy} disabled={isCapturing} className={`px-8 py-4 rounded-full font-bold text-lg shadow-xl ${copied ? 'bg-green-500 text-white' : 'bg-gray-900 text-white'}`}>{isCapturing ? '📸 캡처 중...' : (copied ? '✅ 복사 완료!' : '📋 이미지로 전체 복사하기')}</button></div>
-                            </div>
-                        );
-                    default: return null;
-                }
-            };
-            return (
-                <div className="min-h-screen flex flex-col">
-                    <header className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10 shadow-sm"><div className="max-w-4xl mx-auto flex items-center gap-2 text-blue-600 font-bold"><span>✨ Growth Project</span>{step >= 1 && step <= 5 && <span className="text-gray-400 text-sm font-normal">Step {step}/5</span>}</div></header>
-                    {step >= 1 && step <= 5 && <div className="w-full h-1.5 bg-gray-200 sticky top-[61px] z-10"><div className="h-full bg-blue-500 transition-all duration-500" style={{ width: `${(step / 5) * 100}%` }}></div></div>}
-                    <main className="flex-1 w-full max-w-4xl mx-auto flex flex-col p-4 md:p-6 pb-12">{renderContent()}</main>
-                </div>
-            );
-        }
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+                                    {isError && value.length ===
